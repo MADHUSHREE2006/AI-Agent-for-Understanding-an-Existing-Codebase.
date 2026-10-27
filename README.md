@@ -12,6 +12,12 @@ own results* before answering.
 > This agent explores files, maps connections, and produces explanations
 > linked to the relevant code.
 
+> **Implementation note:** This project uses the **`simulate`** backend for 
+> demonstrations, which runs the full agentic workflow (ReAct loop, tool use, 
+> result checking) without requiring a model download. The agent still executes 
+> real tools against real code and produces verified reports. Ollama and 
+> OpenAI-compatible backends are also supported for use with actual LLMs.
+
 ---
 
 ## How it works
@@ -57,20 +63,26 @@ The loop demonstrates the three required agentic behaviours:
 
 ---
 
-## Model choice (local LLMs preferred)
+## Model choice (local LLMs preferred, simulate mode used in this project)
 
 Per the brief, locally running LLMs are preferred. The agent talks to a model
 through a thin, dependency-light client with **three interchangeable backends**:
 
-| Backend | What it uses | When to use |
-|---------|--------------|-------------|
-| `ollama` (default) | A local model via **Ollama** | Preferred — runs offline, free, private. |
-| `openai` | Any OpenAI-compatible API (OpenAI, Groq, LM Studio) | When you want a hosted model. |
-| `simulate` | No model — scripted adaptive responses | Demos/viva without any LLM installed. |
+| Backend | What it uses | When to use | Used in this project |
+|---------|--------------|-------------|---------------------|
+| `ollama` | A local model via **Ollama** | Preferred — runs offline, free, private. | — |
+| `openai` | Any OpenAI-compatible API (OpenAI, Groq, LM Studio) | When you want a hosted model. | — |
+| `simulate` | No model — scripted adaptive responses | Demos/viva without any LLM installed. | ✅ **Active** |
 
-`simulate` is not a fake: it drives **real tool calls** against the real code and
-the report generator performs real static analysis, so it produces a genuine,
-code-linked report with verified citations on any machine.
+**This project uses `simulate` mode** to demonstrate the agentic workflow without
+requiring a 5+ GB model download. The simulate backend:
+- Executes **real tool calls** against real code (not fake responses)
+- Produces **genuine, code-linked reports** with verified citations
+- Demonstrates the complete ReAct loop (reasoning → tool use → checking results)
+- Works on any machine, offline, with zero storage requirements
+
+`simulate` is not a stub: the report generator performs real static analysis, so
+every citation, dependency map, and rule detection is based on actual code inspection.
 
 **Recommended local model:** `qwen2.5-coder:7b` (excellent at code, small enough
 for a laptop). Other good options: `deepseek-coder-v2`, `llama3.1:8b`, `mistral`.
@@ -85,11 +97,15 @@ pip install -r requirements.txt
 ```
 
 ### 2. (Optional) Install Ollama for local LLMs
+**Note:** This project uses `simulate` mode by default (no Ollama needed).
+If you want to test with a real local model:
 - **Windows:** download the installer from <https://ollama.com/download>
 - Start it: `ollama serve`
-- Pull a model: `ollama pull qwen2.5-coder:7b`
+- Pull a model: `ollama pull qwen2.5-coder:7b` (5 GB download)
 
-**Note:** If you have limited disk space on C: drive, Ollama stores models in `%USERPROFILE%\.ollama` by default. Use the `simulate` backend instead — it needs no model download and works offline.
+**Storage consideration:** Ollama stores models in `%USERPROFILE%\.ollama` 
+by default. If you have limited disk space, the `simulate` backend is 
+recommended — it needs no model download and works offline.
 
 ### 3. (Optional) OpenAI-compatible API
 Set `OPENAI_API_KEY` (and optionally `CBU_OPENAI_BASE_URL` / `CBU_OPENAI_MODEL`).
@@ -98,18 +114,30 @@ Set `OPENAI_API_KEY` (and optionally `CBU_OPENAI_BASE_URL` / `CBU_OPENAI_MODEL`)
 
 ## Usage
 
+**This project uses simulate mode (no model download needed):**
+
 ```bash
-# Demo on the bundled sample project — no LLM needed:
+# Demo on the bundled sample project:
 python main.py tests/sample_project --backend simulate
-
-# Use a locally running Ollama model (preferred):
-python main.py path/to/your/project --backend ollama --model qwen2.5-coder:7b
-
-# Use an OpenAI-compatible API:
-python main.py path/to/your/project --backend openai
 
 # Print the full agentic trace to the console:
 python main.py tests/sample_project --backend simulate --trace
+
+# Analyze any other project:
+python main.py path/to/your/project --backend simulate
+```
+
+**Optional: Use with a locally running Ollama model:**
+
+```bash
+# After installing Ollama and pulling a model:
+python main.py path/to/your/project --backend ollama --model qwen2.5-coder:7b
+```
+
+**Optional: Use an OpenAI-compatible API:**
+
+```bash
+python main.py path/to/your/project --backend openai
 ```
 
 If the chosen backend is unavailable (e.g. Ollama not running), the CLI
