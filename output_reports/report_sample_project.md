@@ -1,6 +1,6 @@
 # Codebase Understanding Report — sample_project
 
-- **Generated:** 2026-10-27 08:36
+- **Generated:** 2026-10-27 09:20
 - **Target project:** `D:\project\Agentic ai\tests\sample_project`
 - **LLM backend:** simulate (no model; scripted adaptive responses)
 - **Agentic iterations:** 9
@@ -107,7 +107,7 @@ This is a Python project with an entry point `main.py` and 6 Python module(s). T
 
 Business rules are implemented as explicit validation that raises exceptions (ValueError/KeyError) at the following locations: `main.py:26`, `library/book.py:28`, `library/book.py:32`, `library/book.py:38`, `library/book.py:41`, `library/book.py:42`, `library/library.py:24`, `library/library.py:30`, `library/library.py:38`, `library/library.py:43`, `library/library.py:46`, `library/library.py:50`.
 
-Module wiring: the entry point imports the main package, whose orchestrator module imports the data models (book, member, loan). The detailed, line-by-line breakdown and an auto-detected rules table are provided in the sections below, generated from the verified static analysis of the source.
+Module wiring: the entry point imports the main package, which wires together the domain modules (`book`, `member`, `loan`, `library`). The detailed, line-by-line breakdown and an auto-detected rules table are provided in the sections below, generated from the verified static analysis of the source.
 
 ## 6. Business Rules — Auto-Detected by Heuristics
 

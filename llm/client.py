@@ -345,17 +345,19 @@ class LLMClient:
 
     def _sim_final_answer(self, messages: List[Dict[str, str]]) -> str:
         """Build a real, citation-bearing summary from gathered observations."""
-        # collect file:line citations from the search-results observation
+        # collect file:line citations from the search-results observation and
+        # capture the dependency-map observation to describe real wiring.
         citations: List[str] = []
-        search_obs = ""
+        dep_obs = ""
         for m in messages:
             c = m.get("content", "")
             if m["role"] == "user" and c.startswith("Observation:"):
                 obs = c[len("Observation:"):].lstrip()
                 if "SEARCH RESULTS" in obs:
-                    search_obs = obs
                     for mm in re.finditer(r"([A-Za-z0-9_./\\-]+\.py):(\d+)", obs):
                         citations.append(f"{mm.group(1)}:{mm.group(2)}")
+                if "DEPENDENCY MAP" in obs:
+                    dep_obs = obs
 
         seen, uniq = set(), []
         for c in citations:
@@ -363,11 +365,23 @@ class LLMClient:
                 seen.add(c)
                 uniq.append(c)
 
+        # derive the real domain-module names from the dependency edges.
+        modules: List[str] = []
+        if dep_obs:
+            for _frm, to in re.findall(
+                r"([A-Za-z0-9_./-]+\.py)\s*->\s*([A-Za-z0-9_./-]+\.py)", dep_obs
+            ):
+                if not to.endswith("__init__.py"):
+                    base = os.path.splitext(os.path.basename(to))[0]
+                    if base not in modules:
+                        modules.append(base)
+
         entry = self._pick_entry_file("")
         entry_name = os.path.basename(entry) if entry else "main.py"
         py_count = len(self._sim_py_files)
 
         cite_text = ", ".join(f"`{c}`" for c in uniq[:12])
+        module_text = ", ".join(f"`{m}`" for m in modules) if modules else "several domain modules"
         parts = [
             f"This is a Python project with an entry point `{entry_name}` and "
             f"{py_count} Python module(s). The agent explored the directory "
@@ -378,10 +392,10 @@ class LLMClient:
             "exceptions (ValueError/KeyError) at the following locations: "
             + (cite_text + "." if cite_text else "(none located by search)."),
             "",
-            "Module wiring: the entry point imports the main package, whose "
-            "orchestrator module imports the data models (book, member, loan). "
-            "The detailed, line-by-line breakdown and an auto-detected rules "
-            "table are provided in the sections below, generated from the "
-            "verified static analysis of the source.",
+            f"Module wiring: the entry point imports the main package, which "
+            f"wires together the domain modules ({module_text}). The detailed, "
+            "line-by-line breakdown and an auto-detected rules table are "
+            "provided in the sections below, generated from the verified "
+            "static analysis of the source.",
         ]
         return "\n".join(parts)

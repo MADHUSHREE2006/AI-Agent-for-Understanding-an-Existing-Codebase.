@@ -17,6 +17,7 @@ from tools.dependency_mapper import map_dependencies
 from tools.search import search_content
 
 SAMPLE = os.path.normpath(os.path.join(os.path.dirname(__file__), "sample_project"))
+SAMPLE2 = os.path.normpath(os.path.join(os.path.dirname(__file__), "sample_grading"))
 
 
 # ---------------------------------------------------------------------
@@ -68,6 +69,17 @@ def test_parse_file_records_import_level_for_relative_imports():
     rel_imp = next(i for i in info["imports"] if i["module"] == "book")
     assert rel_imp["kind"] == "from"
     assert rel_imp["level"] == 1  # `from .book import ...`
+
+
+def test_dependency_mapper_works_on_grading_sample():
+    """The mapper must resolve relative imports for the second sample too."""
+    deps = map_dependencies(SAMPLE2)
+    assert "error" not in deps
+    adj = deps["adjacency"]
+    # report.py depends on result.py; result.py depends on course.py
+    assert "grading/result.py" in adj["grading/report.py"]
+    assert "grading/course.py" in adj["grading/result.py"]
+    assert "book" not in deps["external_imports"]  # no false external libs
 
 
 def test_extract_business_rule_candidates_flags_validations():

@@ -9,10 +9,11 @@ __pycache__/
 .venv/
 venv/
 
-# Generated reports (keep one sample for documentation)
+# Generated reports (keep the two sample reports for documentation)
 output_reports/*
 !output_reports/.gitkeep
 !output_reports/report_sample_project.md
+!output_reports/report_sample_grading.md
 
 # Docker target mount
 target_project/

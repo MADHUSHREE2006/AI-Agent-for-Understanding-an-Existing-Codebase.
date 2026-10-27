@@ -16,6 +16,7 @@ from llm import LLMClient
 from output.report_generator import generate_report, save_report
 
 SAMPLE = os.path.normpath(os.path.join(os.path.dirname(__file__), "sample_project"))
+SAMPLE2 = os.path.normpath(os.path.join(os.path.dirname(__file__), "sample_grading"))
 
 
 def _sim_config() -> Config:
@@ -86,6 +87,20 @@ def test_agent_citations_verify_against_source():
     for c in result.citations:
         assert c.file_exists, f"citation references missing file: {c.raw}"
         assert c.line_valid, f"citation line out of range: {c.raw}"
+
+
+def test_agent_works_on_second_sample_grading():
+    """The agent must generalise to a different domain (grading system)."""
+    cfg = _sim_config()
+    result = CodebaseAgent(cfg, SAMPLE2).run()
+    assert result.iterations > 0
+    assert result.final_answer.strip() != ""
+    assert len(result.citations) > 0
+    for c in result.citations:
+        assert c.file_exists, f"citation references missing file: {c.raw}"
+        assert c.line_valid, f"citation line out of range: {c.raw}"
+    # the final answer should name the grading modules, not the library ones
+    assert "course" in result.final_answer or "student" in result.final_answer
 
 
 def test_agent_error_handling_on_bad_tool_path():

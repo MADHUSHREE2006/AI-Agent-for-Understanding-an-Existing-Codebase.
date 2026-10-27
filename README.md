@@ -80,6 +80,8 @@ requiring a 5+ GB model download. The simulate backend:
 - Produces **genuine, code-linked reports** with verified citations
 - Demonstrates the complete ReAct loop (reasoning → tool use → checking results)
 - Works on any machine, offline, with zero storage requirements
+- Has been validated against **two different sample projects** (a library
+  management system and a student grading system) to prove it generalises
 
 `simulate` is not a stub: the report generator performs real static analysis, so
 every citation, dependency map, and rule detection is based on actual code inspection.
@@ -180,7 +182,8 @@ A comprehensive markdown report is saved to `output_reports/report_<projectname>
 ├── tests/
 │   ├── test_tools.py            # tool unit tests
 │   ├── test_agent.py            # agent + LLM client tests
-│   └── sample_project/          # library mgmt system (the analysis target)
+│   ├── sample_project/          # library mgmt system (analysis target #1)
+│   └── sample_grading/          # student grading system (analysis target #2)
 ├── output_reports/             # generated reports
 │   └── report_<name>.md        # comprehensive markdown report with citations
 ├── docs/
@@ -195,7 +198,15 @@ A comprehensive markdown report is saved to `output_reports/report_<projectname>
 python -m pytest -q
 ```
 All tests use the `simulate` backend, so they run anywhere with no model and
-complete in well under a second.
+complete in well under a second. The suite includes checks against **two**
+sample projects (a library management system and a student grading system) to
+prove the agent generalises across domains.
+
+You can also run the agent directly on either sample to generate a fresh report:
+```bash
+python main.py tests/sample_project --backend simulate   # library system
+python main.py tests/sample_grading  --backend simulate   # grading system
+```
 
 ---
 
