@@ -47,9 +47,13 @@ def search_content(path: str, pattern: str, max_results: int = 20) -> str:
             if d not in _cfg.ignore_dirs and not d.startswith(".")
         ]
         for fn in filenames:
+            # Skip documentation files like README so the agent only cites code,
+            # not documentation that restates the rules in prose.
+            if fn.upper().startswith("README"):
+                continue
             ext = os.path.splitext(fn)[1].lower()
             if ext and ext not in _cfg.supported_extensions and ext not in (
-                ".md", ".txt", ".yml", ".yaml", ".json", ".toml", ".cfg", ".ini",
+                ".txt", ".yml", ".yaml", ".json", ".toml", ".cfg", ".ini",
             ):
                 continue
             full = os.path.join(dirpath, fn)

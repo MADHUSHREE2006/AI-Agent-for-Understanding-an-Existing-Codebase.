@@ -1,6 +1,6 @@
 # Codebase Understanding Report — sample_grading
 
-- **Generated:** 2026-10-27 09:20
+- **Generated:** 2026-10-27 18:11
 - **Target project:** `D:\project\Agentic ai\tests\sample_grading`
 - **LLM backend:** simulate (no model; scripted adaptive responses)
 - **Agentic iterations:** 9
@@ -249,12 +249,8 @@ Internal dependencies (file -> local file):
 Thought: I'll search for the code patterns that encode business rules: validation checks, raised exceptions, and key conditional branches.
 Action: search_content
 Action Input: {"path": "D:\\project\\Agentic ai\\tests\\sample_grading", "pattern": "raise |ValueError|if .* not|assert |<=|>=", "max_results": 30}
-Observation: SEARCH RESULTS for /raise |ValueError|if .* not|assert |<=|>=/ (23 matches):
+Observation: SEARCH RESULTS for /raise |ValueError|if .* not|assert |<=|>=/ (19 matches):
 main.py:30:     except ValueError as exc:
-README.md:10: - A student needs **>= 75% attendance** to be eligible for exams (`student.py`).
-README.md:11: - Grade boundaries: **A >= 90, B >= 75, C >= 60, D >= 40, F < 40** (`course.py`).
-README.md:12: - A score of **>= 40** passes a course (`course.py`).
-README.md:14: - **Distinction** requires an overall GPA of **>= 8.5** (`result.py`, `report.py`).
 grading/course.py:8:         A >= 90, B >= 75, C >= 60, D >= 40, F < 40.
 grading/course.py:16:         if max_marks <= 0:
 grading/course.py:17:             raise ValueError("Maximum marks must be positive.")
@@ -346,7 +342,7 @@ Internal dependencies (file -> local file):
 --- Iteration 9 ---
 Thought: I have enough verified information to answer.
 (no action parsed)
-Observation: (pending)
+Observation: Final Answer produced.
 
 Citations: 12 found, 12 verified, 0 unverified.
 ```
