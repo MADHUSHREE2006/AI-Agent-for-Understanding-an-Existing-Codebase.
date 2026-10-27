@@ -1,0 +1,5 @@
+# Core dependency: HTTP client for Ollama / OpenAI-compatible APIs
+requests>=2.31.0
+
+# Testing
+pytest>=8.0.0

@@ -1,0 +1,23 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+
+# Virtual envs
+.venv/
+venv/
+
+# Generated reports (keep one sample for documentation)
+output_reports/*
+!output_reports/.gitkeep
+!output_reports/report_sample_project.md
+
+# Docker target mount
+target_project/
+
+# OS / editor
+.DS_Store
+.vscode/
+.idea/
