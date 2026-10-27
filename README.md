@@ -129,6 +129,20 @@ python main.py tests/sample_project --backend simulate --trace
 python main.py path/to/your/project --backend simulate
 ```
 
+### 🌐 Web UI (Streamlit)
+
+```bash
+python -m streamlit run app.py
+```
+
+Then open **http://localhost:8501** in your browser. Features:
+- 📂 Type any project path or load a bundled sample with one click
+- 📊 Project snapshot (files, classes, functions, rule candidates) shown instantly
+- 🔄 **Live ReAct trace** — each agent step appears as it runs
+- 📄 **Four tabs:** full report, step-by-step trace, citation verification, final answer
+- ⬇️ Download the Markdown report directly from the browser
+- ⚙️ Sidebar backend switcher (simulate / ollama / openai)
+
 **Optional: Use with a locally running Ollama model:**
 
 ```bash
@@ -162,7 +176,7 @@ A comprehensive markdown report is saved to `output_reports/report_<projectname>
 
 ```
 .
-├── main.py                     # CLI entry point
+├── app.py                      # Streamlit web UI (python -m streamlit run app.py)
 ├── config.py                   # Config (backend selection, limits, filters)
 ├── conftest.py                 # makes root importable for pytest
 ├── requirements.txt

@@ -17,7 +17,7 @@ import json
 import os
 import re
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional
+from typing import Any, Callable, Dict, List, Optional
 
 from config import Config
 from llm import LLMClient, LLMError
@@ -90,8 +90,13 @@ class CodebaseAgent:
         self.registry = build_registry(config)
 
     # ------------------------------------------------------------------
-    def run(self) -> AgentResult:
-        """Execute the agentic loop and return the agent's findings."""
+    def run(self, on_step: Optional[Callable[["AgentStep"], None]] = None) -> AgentResult:
+        """Execute the agentic loop and return the agent's findings.
+
+        ``on_step`` is an optional callback invoked after each ReAct step
+        completes (with the tool observation, or the final answer). Frontends
+        use it to render the loop live; the CLI ignores it.
+        """
         system = SYSTEM_PROMPT.format(tools=tool_descriptions(self.registry))
         task = USER_TASK_TEMPLATE.format(target=self.target_path)
         messages: List[Dict[str, str]] = [
@@ -102,6 +107,10 @@ class CodebaseAgent:
         steps: List[AgentStep] = []
         final_answer = ""
         truncated = False
+
+        def _emit() -> None:
+            if on_step is not None and steps:
+                on_step(steps[-1])
 
         for i in range(1, self.config.max_iterations + 1):
             try:
@@ -119,11 +128,15 @@ class CodebaseAgent:
             # Final Answer -> done (after verifying findings).
             if final is not None:
                 final_answer = final
+                steps[-1].observation = "Final Answer produced."
+                _emit()
                 break
 
             # No parseable action -> nudge the model back to the format.
             if not action:
                 messages.append({"role": "user", "content": FORMAT_REMINDER})
+                steps[-1].observation = "(format nudge sent)"
+                _emit()
                 continue
 
             # ---- Tool use + checking results ------------------------------
@@ -139,6 +152,7 @@ class CodebaseAgent:
                     "role": "user",
                     "content": "That tool call returned an error. Reconsider and try a different approach or path.",
                 })
+            _emit()
         else:
             truncated = True
             final_answer = (
